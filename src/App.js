@@ -30,6 +30,7 @@ class App extends React.Component {
       Clear: "wi-day-sunny",
       Clouds: "wi-day-fog"
     };
+    this.getUserLocation();
   }
 
   calcCel (temp){
@@ -91,6 +92,27 @@ class App extends React.Component {
       })
     }
   };
+
+ getUserWeather = async (city, country) => {
+    const api_call = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API_KEY}`);
+
+    const response = await api_call.json();
+    this.setState({
+      city: `${response.name}, ${response.sys.country}`,
+      celcius: this.calcCel(response.main.temp),
+      temp_max: this.calcCel(response.main.temp_max),
+      temp_min: this.calcCel(response.main.temp_min),
+      description: response.weather[0].description,
+      error: false
+    });
+    this.get_WeatherIcon(this.weatherIcon, response.weather[0].id)  
+  };
+
+  getUserLocation = () => {
+    fetch('http://ip-api.com/json')
+  .then(response => response.json())
+  .then(data => this.getUserWeather(data.city, data.countryCode));
+  }
   
   render(){
     return (
